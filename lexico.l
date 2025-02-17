@@ -30,7 +30,7 @@ char vets2[tamanho];
 %}
 
 %%
-
+//Tokens para palavras-chave da linguagem MiniLang:
 "void"     {strcat(vets, yytext);copia_token_erro();chars+=strlen(yytext);token++;return(VOID);}
 "int"      {strcat(vets, yytext);copia_token_erro();chars+=strlen(yytext);token++;return(INT);}
 "char"     {strcat(vets, yytext);copia_token_erro();chars+=strlen(yytext);token++;return(CHAR);}
@@ -88,7 +88,7 @@ char vets2[tamanho];
 "define"   {strcat(vets, yytext);copia_token_erro();chars+=strlen(yytext);token++;return(DEFINE);}
 "exit"     {strcat(vets, yytext);copia_token_erro();chars+=strlen(yytext);token++;return(EXIT);}
 
-
+//Os operadores matemáticos e lógicos são definidos de forma similar:
 0[1-7][0-7]*        {strcat(vets, yytext);copia_token_erro();chars+=strlen(yytext);token++;return(NUM_OCTAL);}
 [0-9]+         {strcat(vets, yytext);copia_token_erro();chars+=strlen(yytext);token++;return(NUM_INTEGER);}
 0[Xx][0-9a-fA-F]+   {strcat(vets, yytext);copia_token_erro();chars+=strlen(yytext);token++;return(NUM_HEXA);}
@@ -97,6 +97,7 @@ char vets2[tamanho];
                         while(string[i] != '\0'){string[i] = string[i+1]; i++;} string[i-2] = '\0';
 			chars+=strlen(yytext);token++;return(CHARACTER);}
 
+//Os identificadores e números são capturados com expressões regulares:
 \"([^\\\"]|\\.)*\"	{strcat(vets, yytext);copia_token_erro(); string = malloc(strlen(yytext)*sizeof(char)); strcpy(string, yytext); i = 0;
 			while(string[i] != '\0'){string[i] = string[i+1];i++;} string[i-2] = '\0';
 			chars+=strlen(yytext);token++;return(STRING);}
@@ -113,7 +114,8 @@ char vets2[tamanho];
      "/*"  {copia_token_erro();lines2 = lines; chars2 = chars; chars+=2; }  BEGIN(IN_COMMENT);
      }
 
-<IN_COMMENT>{
+     //Se um caractere inesperado for encontrado, uma mensagem de erro será exibida:
+<IN_COMMENT>{  
      <<EOF>>   { if(ajuda_sint == 0){printf("error:lexical:%d:%d: unterminated comment",lines2,chars2); pula_linha++;exit(0);}}BEGIN(INITIAL);
      "*/"      { copia_token_erro();chars+=2; } BEGIN(INITIAL);
      [^*\n]+   { copia_token_erro();chars+= strlen(yytext);}
@@ -124,7 +126,7 @@ char vets2[tamanho];
 .       { if(ajuda_sint == 0){printf("error:lexical:%d:%d: %s",lines,chars,yytext); chars+= strlen(yytext); pula_linha++;exit(0);}}
 
 %%    
-
+//A função copia_token_erro() auxilia na detecção de erros, armazenando tokens lidos e suas posições:
 void copia_token_erro(){
 
 	int i=0;
